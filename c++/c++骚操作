@@ -1,0 +1,20 @@
+## copy from paddle， Paddle/paddle/fluid/imperative/amp_auto_cast.cc:37
+```
+// 函数指针 🤣
+OpSupportedInfos(const std::string& place,
+                 framework::proto::VarType::Type dtype) {
+  std::string query_place;
+  std::transform(place.begin(), place.end(), std::back_inserter(query_place),
+                 [](unsigned char c) { return std::toupper(c); });
+  using fn_type = std::add_pointer<bool(const platform::Place&)>::type;
+  std::unordered_map<std::string, fn_type> is_target_place{
+      {"GPU", &platform::is_gpu_place}, {"CPU", &platform::is_cpu_place},
+      {"XPU", &platform::is_xpu_place}, {"NPU", &platform::is_npu_place},
+      {"MLU", &platform::is_mlu_place},
+  };
+  PADDLE_ENFORCE_NE(is_target_place.count(query_place), 0,
+                    platform::errors::InvalidArgument(
+                        "The argument `place` should be 'GPU', 'CPU', 'XPU', "
+                        "'NPU', 'MLU', but got '%s'.",
+                        place));
+```
